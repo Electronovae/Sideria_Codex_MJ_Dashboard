@@ -6,6 +6,8 @@
 .fiches-header-titre{font-size:1.05rem;font-variant:small-caps;letter-spacing:.08em;}
 .fiches-header-titre em{font-style:normal;color:var(--or-clair);}
 .fiches-header-joueur{margin-left:auto;font-size:.85em;}
+.fiches-header-nav{display:flex;gap:8px;}
+.fiches-header-nav a{text-decoration:none;}
 .fiches-badge{background:var(--or);color:var(--bleu-nuit);font-size:.7em;font-weight:700;padding:1px 6px;border-radius:3px;margin-left:6px;}
 .fiches-main{padding:20px;max-width:960px;margin:0 auto;}
 
@@ -15,6 +17,8 @@
 
 .fiches-login{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--fond2);}
 .fiches-carte{background:var(--carte);border:1px solid var(--champ-bord);border-radius:4px;padding:28px 32px;max-width:420px;width:100%;box-shadow:0 4px 20px rgba(0,0,0,.15);}
+.fiches-carte--large{max-width:640px;}
+@media (max-width:700px){.fiches-carte--large{padding:20px;}}
 .fiches-carte h1{font-size:1.2em;font-variant:small-caps;letter-spacing:.05em;color:var(--bleu);margin-bottom:4px;}
 .fiches-souscarte{color:var(--gris);font-style:italic;margin-bottom:18px;font-size:.9em;}
 .fiches-carte-titre{font-variant:small-caps;font-weight:700;color:var(--bleu);margin-bottom:14px;font-size:1.1em;letter-spacing:.04em;}
@@ -63,7 +67,7 @@
 .fc-grille--4{grid-template-columns:repeat(4,1fr);}
 .fc-grille--5{grid-template-columns:repeat(5,1fr);}
 .fc-grille--6{grid-template-columns:repeat(6,1fr);}
-.fc-champ{display:flex;flex-direction:column;gap:3px;font-size:.85em;}
+.fc-champ{display:flex;flex-direction:column;gap:3px;font-size:.85em;min-width:0;}
 .fc-champ span{font-weight:700;color:var(--bleu);font-variant:small-caps;letter-spacing:.03em;}
 .fc-champ--case{flex-direction:row;align-items:center;gap:6px;}
 .fc-champ--zone{margin-top:8px;}
@@ -154,6 +158,23 @@
   overflow:hidden;cursor:pointer;}
 .jauge-visuelle-remplissage{height:100%;transition:width .15s ease;}
 
+/* ── Jauge de progression de la cristallite ── */
+.jauge-cristallite{margin:8px 0 14px;}
+.jauge-cristallite-barre{display:flex;gap:3px;height:16px;}
+.jauge-cristallite-seg{flex:1;background:var(--fond2);border:1px solid var(--champ-bord);border-radius:2px;
+  cursor:pointer;transition:background .15s ease;}
+.jauge-cristallite-seg.actif{background:var(--or);border-color:var(--or);}
+.jauge-cristallite-seg:hover{border-color:var(--or);}
+.jauge-cristallite-label{margin-top:5px;font-size:.8em;color:var(--bleu);font-weight:700;}
+
+/* ── Jauge de réputation façon compteur de pression ── */
+.jauge-pression{flex:1;height:16px;cursor:pointer;min-width:120px;}
+.jauge-pression-fond{position:relative;height:100%;background:var(--fond2);
+  border:1px solid var(--champ-bord);border-radius:8px;overflow:hidden;}
+.jauge-pression-remplissage{position:absolute;top:0;height:100%;transition:left .15s ease,width .15s ease;}
+.jauge-pression-zero{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--champ-bord);
+  transform:translateX(-1px);}
+
 /* ── Accordéons (Combat) ── */
 .feuille-accordeon{margin-top:10px;border-top:1px dashed var(--champ-bord);padding-top:8px;}
 .feuille-accordeon summary{cursor:pointer;font-variant:small-caps;font-size:.9em;letter-spacing:.04em;
@@ -227,12 +248,12 @@
   border-color:var(--or);box-shadow:0 -2px 0 var(--or) inset;}
 
 /* ── Compteur (Fragments, etc.) : valeur / max éditables avec +/- ── */
-.fc-champ--compteur{gap:3px;}
-.compteur{display:flex;align-items:center;gap:4px;}
-.compteur-btn{background:var(--champ);border:1px solid var(--champ-bord);color:var(--bleu);
+.fc-champ--compteur{gap:3px;min-width:0;}
+.compteur{display:flex;align-items:center;gap:4px;min-width:0;flex-wrap:wrap;}
+.compteur-btn{background:var(--champ);border:1px solid var(--champ-bord);color:var(--bleu);flex:none;
   width:22px;height:22px;line-height:1;border-radius:2px;cursor:pointer;font-family:inherit;font-weight:700;flex:none;}
 .compteur-btn:hover{border-color:var(--or);}
-.compteur-valeur,.compteur-max{width:44px;text-align:center;flex:none;}
+.compteur-valeur,.compteur-max{width:40px;min-width:0;text-align:center;flex:none;}
 .compteur-sur{color:var(--gris);}
 
 @media (max-width:640px){
@@ -241,3 +262,35 @@
   .vital-label{font-size:.6em;}
   .vital-valeur{font-size:1em;}
 }
+
+/* ── Assistant de création : étape Caractéristiques ── */
+.jets-caracteristiques{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+@media (max-width:520px){.jets-caracteristiques{grid-template-columns:1fr;}}
+.jet-carac{background:var(--champ);border:1px solid var(--champ-bord);border-radius:4px;padding:8px 10px;
+  display:flex;align-items:center;gap:8px;}
+.jet-carac label{flex:1;font-size:.82rem;font-weight:600;color:var(--bleu);}
+.jet-carac-de{width:28px;height:28px;border-radius:50%;background:var(--or);color:#26221a;font-weight:700;
+  display:flex;align-items:center;justify-content:center;font-size:.85rem;flex:none;}
+.jet-carac select{flex:none;max-width:100px;}
+
+/* ── Assistant de création : étape Dons / Sorts ── */
+.dons-grille{display:grid;grid-template-columns:1fr;gap:8px;margin-top:4px;}
+.carte-choix{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--champ);
+  border:1px solid var(--champ-bord);border-radius:4px;cursor:pointer;transition:border-color .15s ease;}
+.carte-choix:hover{border-color:var(--or);}
+.carte-choix--sel{border-color:var(--or);background:rgba(201,162,39,.08);}
+.carte-choix input{margin-top:3px;flex:none;}
+.carte-choix-nom{display:block;font-weight:700;color:var(--bleu);}
+.carte-choix-meta{display:block;color:var(--gris);font-size:.85em;margin-top:2px;}
+
+/* ── Assistant de création : étape Récapitulatif ── */
+.recap-fiche{background:var(--champ);border:1px solid var(--champ-bord);border-radius:6px;padding:16px;}
+.recap-entete{border-bottom:1px dashed var(--champ-bord);padding-bottom:10px;margin-bottom:12px;}
+.recap-nom{font-size:1.2em;font-weight:700;color:var(--bleu);font-variant:small-caps;letter-spacing:.03em;}
+.recap-sous{color:var(--gris);font-size:.88em;margin-top:2px;}
+.recap-carac-grille{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+@media (max-width:520px){.recap-carac-grille{grid-template-columns:repeat(2,1fr);}}
+.recap-carac{background:var(--carte);border:1px solid var(--champ-bord);border-radius:4px;padding:8px;text-align:center;}
+.recap-carac-label{font-size:.68em;color:var(--gris);font-variant:small-caps;letter-spacing:.03em;}
+.recap-carac-valeur{font-size:1.15em;font-weight:700;color:var(--bleu);}
+.recap-ligne{font-size:.88em;margin:6px 0;}

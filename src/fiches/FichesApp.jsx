@@ -52,6 +52,10 @@ export default function FichesApp() {
     <div className="fiches-app">
       <header className="fiches-header">
         <span className="fiches-header-titre">The Sideria Codex <em>— Fiches Personnage</em></span>
+        <nav className="fiches-header-nav">
+          <a href="/" className="fiches-btn fiches-btn--discret">Wiki ↗</a>
+          {estMJ && <a href="/studio" className="fiches-btn fiches-btn--discret">Studio ↗</a>}
+        </nav>
         <span className="fiches-header-joueur">
           {player.name_player} {estMJ && <span className="fiches-badge">MJ</span>}
         </span>
