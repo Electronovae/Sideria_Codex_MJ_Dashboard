@@ -6,7 +6,7 @@ import { usePeuples, useHistoriques, useDons, useSorts } from '../wiki/useWikiDa
 import { nouvelleFiche, LIBELLES_CARAC } from './modeleFiche.js'
 
 const NOMS_CARAC = ['for', 'dex', 'con', 'int', 'sag', 'cha', 'ecl']
-const ETAPES = ['Nom', 'Classe', 'Origine', 'Caractéristiques', 'Dons', 'Sorts', 'Récapitulatif']
+const ETAPES = ['Nom', 'Classe', 'Peuple', 'Historique', 'Caractéristiques', 'Dons', 'Sorts', 'Récapitulatif']
 
 function nomCourtClasse(nomComplet) {
   return (nomComplet || '').replace(/^(Le |La |L')/, '')
@@ -21,6 +21,16 @@ function lancer4d6DropLowest() {
   }
   des.sort((a, b) => a - b)
   return des[1] + des[2] + des[3]
+}
+
+// Pièces de départ : 2d6 × 10, avec un petit bonus selon l'historique (Ouvrier, Marchand...)
+// et le peuple, le temps qu'on affine une vraie table dans le manuel.
+function lancerPiecesDepart(peuple, historique) {
+  const d6 = () => 1 + Math.floor(Math.random() * 6)
+  const base = (d6() + d6()) * 10
+  const bonusHistorique = /marchand|noble|riche/i.test(historique?.nom || '') ? 20 : 0
+  const bonusPeuple = /sillé|arcadie/i.test(peuple?.nom || '') ? 10 : 0
+  return base + bonusHistorique + bonusPeuple
 }
 
 export default function CreationGuidee({ player }) {
@@ -42,6 +52,7 @@ export default function CreationGuidee({ player }) {
   const [historiqueId, setHistoriqueId] = useState(null)
   const [jets, setJets] = useState([])
   const [assignation, setAssignation] = useState({}) // { for: indexDeJet, ... }
+  const [pieces, setPieces] = useState(null)
   const [donsChoisis, setDonsChoisis] = useState([])
   const [sortsChoisis, setSortsChoisis] = useState([])
 
@@ -93,24 +104,26 @@ export default function CreationGuidee({ player }) {
   const peutAvancer = () => {
     if (etape === 0) return nom.trim().length > 0
     if (etape === 1) return !!classeId && (classe?.subclasses?.length ? !!sousClasseId : true)
-    if (etape === 2) return !!peupleId && !!historiqueId
-    if (etape === 3) return toutAssigne
-    if (etape === 4) return true // don optionnel niveau 1 selon table
-    if (etape === 5) return true
+    if (etape === 2) return !!peupleId
+    if (etape === 3) return !!historiqueId
+    if (etape === 4) return toutAssigne
+    if (etape === 5) return true // don optionnel niveau 1 selon table
+    if (etape === 6) return true
     return true
   }
 
   const etapesEffectives = estLanceurDeSorts ? ETAPES : ETAPES.filter(e => e !== 'Sorts')
-  const indexEffectif = estLanceurDeSorts ? etape : (etape > 4 ? etape - 1 : etape)
+  const indexEffectif = estLanceurDeSorts ? etape : (etape > 6 ? etape - 1 : etape)
+  const DERNIERE_ETAPE = 7
 
   const suivant = () => {
     let prochaine = etape + 1
-    if (prochaine === 5 && !estLanceurDeSorts) prochaine = 6
+    if (prochaine === 6 && !estLanceurDeSorts) prochaine = 7
     setEtape(prochaine)
   }
   const precedent = () => {
     let prochaine = etape - 1
-    if (prochaine === 5 && !estLanceurDeSorts) prochaine = 4
+    if (prochaine === 6 && !estLanceurDeSorts) prochaine = 5
     setEtape(Math.max(0, prochaine))
   }
 
@@ -137,6 +150,7 @@ export default function CreationGuidee({ player }) {
       hp_current: (classe?.de_vie ?? 8) + Math.floor((stats.con - 10) / 2),
       dons: donsChoisis,
       sorts_connus: sortsChoisis,
+      gold: pieces ?? 0,
     }
 
     const { data, error } = await supabase.from('characters').insert(fiche).select('id').single()
@@ -148,7 +162,7 @@ export default function CreationGuidee({ player }) {
 
   return (
     <div className="fiches-selection">
-      <div className="fiches-carte">
+      <div className="fiches-carte fiches-carte--large">
         <div className="fiches-carte-titre">Créer un personnage</div>
         <p style={{ fontSize: '.82rem', color: 'var(--gris, #8a8478)', margin: '0 0 14px' }}>
           Étape {indexEffectif + 1} / {etapesEffectives.length} — {etapesEffectives[indexEffectif]}
@@ -165,6 +179,14 @@ export default function CreationGuidee({ player }) {
 
         {etape === 1 && (
           <div>
+            {classe && (
+              <p style={{ margin: '0 0 8px' }}>
+                <a href={`/classes/${classe.id}`} target="_blank" rel="noreferrer"
+                  style={{ fontSize: '.8rem', color: 'var(--or, #c9a227)' }}>
+                  📖 Voir la fiche complète de {classe.nom} sur le wiki ↗
+                </a>
+              </p>
+            )}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
               {classes.map(c => (
                 <button key={c.id} type="button" className="fiches-btn fiches-btn--discret"
@@ -193,8 +215,16 @@ export default function CreationGuidee({ player }) {
 
         {etape === 2 && (
           <div>
+            {peuple && (
+              <p style={{ margin: '0 0 8px' }}>
+                <a href="/origines" target="_blank" rel="noreferrer"
+                  style={{ fontSize: '.8rem', color: 'var(--or, #c9a227)' }}>
+                  📖 Voir les peuples sur le wiki ↗
+                </a>
+              </p>
+            )}
             <p style={{ fontWeight: 600, margin: '0 0 6px' }}>Peuple</p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               {peuples.map(p => (
                 <button key={p.id} type="button" className="fiches-btn fiches-btn--discret"
                   style={{ textAlign: 'left', border: p.id === peupleId ? '2px solid var(--or, #c9a227)' : undefined }}
@@ -203,6 +233,19 @@ export default function CreationGuidee({ player }) {
                 </button>
               ))}
             </div>
+          </div>
+        )}
+
+        {etape === 3 && (
+          <div>
+            {historique && (
+              <p style={{ margin: '0 0 8px' }}>
+                <a href="/origines" target="_blank" rel="noreferrer"
+                  style={{ fontSize: '.8rem', color: 'var(--or, #c9a227)' }}>
+                  📖 Voir les historiques sur le wiki ↗
+                </a>
+              </p>
+            )}
             <p style={{ fontWeight: 600, margin: '0 0 6px' }}>Historique</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               {historiques.map(h => (
@@ -216,7 +259,7 @@ export default function CreationGuidee({ player }) {
           </div>
         )}
 
-        {etape === 3 && (
+        {etape === 4 && (
           <div>
             <p style={{ fontSize: '.86rem', color: 'var(--gris, #8a8478)' }}>
               4d6, relance des 1, garde les 3 meilleurs — répété 7 fois. Assigne librement chaque score à une caractéristique.
@@ -226,81 +269,101 @@ export default function CreationGuidee({ player }) {
               🎲 Lancer les 7 scores
             </button>
             {jets.length > 0 && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                {NOMS_CARAC.map(c => (
-                  <div key={c}>
-                    <label style={{ display: 'block', fontSize: '.82rem', marginBottom: 4 }}>{LIBELLES_CARAC[c]}</label>
-                    <select value={assignation[c] ?? ''} onChange={e => assigner(c, e.target.value)}>
-                      <option value="">—</option>
-                      {jets.map((v, i) => (
-                        (assignation[c] === i || !Object.values(assignation).includes(i)) && (
-                          <option key={i} value={i}>{v}</option>
-                        )
-                      ))}
-                    </select>
-                  </div>
-                ))}
+              <div className="jets-caracteristiques">
+                {NOMS_CARAC.map(c => {
+                  const val = assignation[c] !== undefined ? jets[assignation[c]] : null
+                  return (
+                    <div key={c} className="jet-carac">
+                      <label>{LIBELLES_CARAC[c]}</label>
+                      <div className="jet-carac-de" title="Score assigné">{val ?? '—'}</div>
+                      <select value={assignation[c] ?? ''} onChange={e => assigner(c, e.target.value)}>
+                        <option value="">— choisir un jet —</option>
+                        {jets.map((v, i) => (
+                          (assignation[c] === i || !Object.values(assignation).includes(i)) && (
+                            <option key={i} value={i}>{v}</option>
+                          )
+                        ))}
+                      </select>
+                    </div>
+                  )
+                })}
               </div>
             )}
+
+            <div style={{ marginTop: 20, paddingTop: 14, borderTop: '1px dashed var(--champ-bord, #d8cfa8)' }}>
+              <p style={{ fontWeight: 600, margin: '0 0 6px' }}>Pièces de départ</p>
+              <p style={{ fontSize: '.82rem', color: 'var(--gris, #8a8478)', margin: '0 0 8px' }}>
+                2d6 × 10, avec un petit bonus selon ton historique et ton peuple. Le détail exact de la table sera affiné avec le MJ.
+              </p>
+              <button type="button" className="fiches-btn" onClick={() => setPieces(lancerPiecesDepart(peuple, historique))}>
+                🎲 Lancer les pièces d'or
+              </button>
+              {pieces != null && <p style={{ marginTop: 8 }}><strong>{pieces} po</strong></p>}
+            </div>
           </div>
         )}
 
-        {etape === 4 && (
+        {etape === 5 && (
           <div>
             <p style={{ fontSize: '.86rem', color: 'var(--gris, #8a8478)' }}>
               1 don au niveau 1 (génériques ou exclusifs à ta classe). Les dons de maîtrise demandent des prérequis non atteints à la création.
             </p>
-            {donsDisponibles.map(d => (
-              <label key={d.id} className="fiches-item" style={{ display: 'flex', gap: 8, alignItems: 'flex-start', cursor: 'pointer' }}>
-                <input type="checkbox" checked={donsChoisis.includes(d.id)} onChange={() => basculerDon(d.id)} style={{ marginTop: 4 }} />
-                <span>
-                  <span className="fiches-item-nom">{d.nom}</span>
-                  <span className="fiches-item-meta" style={{ display: 'block' }}>{d.description}</span>
-                </span>
-              </label>
-            ))}
+            <div className="dons-grille">
+              {donsDisponibles.map(d => (
+                <label key={d.id} className={'carte-choix' + (donsChoisis.includes(d.id) ? ' carte-choix--sel' : '')}>
+                  <input type="checkbox" checked={donsChoisis.includes(d.id)} onChange={() => basculerDon(d.id)} />
+                  <span>
+                    <span className="carte-choix-nom">{d.nom}</span>
+                    <span className="carte-choix-meta">{d.description}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
           </div>
         )}
 
-        {etape === 5 && estLanceurDeSorts && (
+        {etape === 6 && estLanceurDeSorts && (
           <div>
             <p style={{ fontSize: '.86rem', color: 'var(--gris, #8a8478)' }}>
               Sorts exclusifs à ta classe. Les sorts « Tronc commun » de tes disciplines restent accessibles en jeu — vois ça avec ton MJ.
             </p>
-            {sortsDisponibles.map(s => (
-              <label key={s.id} className="fiches-item" style={{ display: 'flex', gap: 8, alignItems: 'flex-start', cursor: 'pointer' }}>
-                <input type="checkbox" checked={sortsChoisis.includes(s.id)} onChange={() => basculerSort(s.id)} style={{ marginTop: 4 }} />
-                <span>
-                  <span className="fiches-item-nom">{s.nom}</span>
-                  <span className="fiches-item-meta" style={{ display: 'block' }}>{s.sous_type} · {s.meta}</span>
-                </span>
-              </label>
-            ))}
+            <div className="dons-grille">
+              {sortsDisponibles.map(s => (
+                <label key={s.id} className={'carte-choix' + (sortsChoisis.includes(s.id) ? ' carte-choix--sel' : '')}>
+                  <input type="checkbox" checked={sortsChoisis.includes(s.id)} onChange={() => basculerSort(s.id)} />
+                  <span>
+                    <span className="carte-choix-nom">{s.nom}</span>
+                    <span className="carte-choix-meta">{s.sous_type} · {s.meta}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
           </div>
         )}
 
-        {etape === 6 && (
-          <div>
-            <div className="wiki-feature">
-              <div className="wiki-feature-nom">{nom}</div>
-              <div className="wiki-feature-texte">
+        {etape === 7 && (
+          <div className="recap-fiche">
+            <div className="recap-entete">
+              <div className="recap-nom">{nom}</div>
+              <div className="recap-sous">
                 {classe?.nom}{sousClasseId ? ` (${classe.subclasses.find(s => s.id === sousClasseId)?.nom})` : ''}
                 {' — '}{peuple?.nom}, {historique?.nom}
               </div>
             </div>
-            <div className="wiki-stats" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+            <div className="recap-carac-grille">
               {NOMS_CARAC.map(c => (
-                <div key={c} className="wiki-stat">
-                  <div className="wiki-stat-label">{LIBELLES_CARAC[c]}</div>
-                  <div className="wiki-stat-valeur">{jets[assignation[c]] ?? '—'}</div>
+                <div key={c} className="recap-carac">
+                  <div className="recap-carac-label">{LIBELLES_CARAC[c]}</div>
+                  <div className="recap-carac-valeur">{jets[assignation[c]] ?? '—'}</div>
                 </div>
               ))}
             </div>
-            <p style={{ marginTop: 10 }}>
+            {pieces != null && <p className="recap-ligne"><strong>Pièces de départ :</strong> {pieces} po</p>}
+            <p className="recap-ligne">
               <strong>Dons :</strong> {donsChoisis.map(id => dons.find(d => d.id === id)?.nom).join(', ') || 'aucun'}
             </p>
             {estLanceurDeSorts && (
-              <p><strong>Sorts :</strong> {sortsChoisis.map(id => sorts.find(s => s.id === id)?.nom).join(', ') || 'aucun'}</p>
+              <p className="recap-ligne"><strong>Sorts :</strong> {sortsChoisis.map(id => sorts.find(s => s.id === id)?.nom).join(', ') || 'aucun'}</p>
             )}
           </div>
         )}
@@ -309,7 +372,7 @@ export default function CreationGuidee({ player }) {
           <button type="button" className="fiches-btn fiches-btn--discret" onClick={precedent} disabled={etape === 0}>
             ← Précédent
           </button>
-          {etape < 6 ? (
+          {etape < DERNIERE_ETAPE ? (
             <button type="button" className="fiches-btn" onClick={suivant} disabled={!peutAvancer()}>
               Suivant →
             </button>
