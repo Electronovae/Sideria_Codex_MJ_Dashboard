@@ -1,9 +1,11 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { ListeFiche, Texte } from './communs.jsx'
 import { useClasses } from '../fiches/useClasses.js'
+import { useDisciplinesSorts, useSorts } from '../wiki/useWikiData.js'
+import { supabase } from '../lib/supabase.js'
 
-// ── Petits blocs de présentation, tous en lecture seule : ce module n'édite rien,
-// il affiche le contenu du manuel déjà chargé dans classes_sideria/subclasses_sideria/features_sideria. ──
+// ── Petits blocs de présentation, tous en lecture seule (le contenu du manuel n'est pas
+// édité ici), à l'exception du set de sorts de départ par classe, géré en bas de fiche. ──
 
 function BlocBase({ base }) {
   if (!base?.fields?.length) return null
@@ -98,6 +100,44 @@ function FicheSousClasse({ sc, forceOuvert }) {
   )
 }
 
+function EditeurSortsDepart({ classe }) {
+  const { sorts, chargement: chargSorts } = useSorts()
+  const { disciplines, chargement: chargDisc } = useDisciplinesSorts()
+  const [sortsDepart, setSortsDepart] = useState(classe.sorts_depart || [])
+  const [enregistrement, setEnregistrement] = useState(false)
+  const nomCourt = (classe.nom || '').replace(/^(Le |La |L')/, '')
+
+  const sortsDisponibles = useMemo(() => sorts.filter(s => (s.sous_type || '').includes(nomCourt)), [sorts, nomCourt])
+
+  if (chargSorts || chargDisc) return <p className="aide">Chargement des sorts…</p>
+  if (!sortsDisponibles.length) return (
+    <p className="aide">Aucun sort exclusif trouvé pour « {nomCourt} » (rien à définir en set de départ, ou le sous_type des sorts ne correspond pas au nom de la classe).</p>
+  )
+
+  const basculer = async (id) => {
+    const suivant = sortsDepart.includes(id) ? sortsDepart.filter(x => x !== id) : [...sortsDepart, id]
+    setSortsDepart(suivant)
+    setEnregistrement(true)
+    await supabase.from('classes_sideria').update({ sorts_depart: suivant }).eq('id', classe.id)
+    setEnregistrement(false)
+  }
+
+  return (
+    <div>
+      <p className="aide">Coché ici, un sort est proposé pré-sélectionné à l'étape « Sorts » de l'assistant de création de personnage.
+        {enregistrement && ' Enregistrement…'}
+      </p>
+      {sortsDisponibles.map(s => (
+        <label key={s.id} className="rangee" style={{ gap: 8, alignItems: 'baseline', marginBottom: 4 }}>
+          <input type="checkbox" checked={sortsDepart.includes(s.id)} onChange={() => basculer(s.id)} />
+          <span>{s.nom}</span>
+          <span className="aide">{s.sous_type}</span>
+        </label>
+      ))}
+    </div>
+  )
+}
+
 function FicheClasse({ c }) {
   const [forceOuvert, setForceOuvert] = useState(null)
   if (!c) return null
@@ -126,6 +166,13 @@ function FicheClasse({ c }) {
         <>
           <h3 style={{ marginTop: 24 }}>{c.subclasses_label || 'Spécialisations'}</h3>
           {c.subclasses.map(sc => <FicheSousClasse key={sc.id} sc={sc} forceOuvert={forceOuvert} />)}
+        </>
+      )}
+
+      {c.base?.fields?.some(f => f.label === 'Magie') && (
+        <>
+          <h3 style={{ marginTop: 24 }}>Set de sorts de départ</h3>
+          <EditeurSortsDepart classe={c} />
         </>
       )}
     </div>
