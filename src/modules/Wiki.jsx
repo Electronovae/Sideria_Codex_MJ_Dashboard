@@ -31,8 +31,9 @@ function BlocExtra({ items }) {
   ))
 }
 
-function Feature({ f }) {
+function Feature({ f, forceOuvert }) {
   const [ouvert, setOuvert] = useState(false)
+  React.useEffect(() => { if (forceOuvert != null) setOuvert(forceOuvert) }, [forceOuvert])
   const complet = f.texte_complet && f.texte_complet !== f.description
   return (
     <div className="carte" style={{ marginBottom: 8 }}>
@@ -82,13 +83,13 @@ function BlocMulticlassage({ items }) {
   )
 }
 
-function FicheSousClasse({ sc }) {
+function FicheSousClasse({ sc, forceOuvert }) {
   return (
     <div style={{ marginTop: 18 }}>
       <h3 style={{ borderBottom: '1px solid var(--parch-mid)', paddingBottom: 3 }}>{sc.nom}</h3>
       {sc.tagline && <p className="citation">{sc.tagline}</p>}
       {sc.flavour && <Texte>{sc.flavour}</Texte>}
-      {(sc.features || []).map(f => <Feature key={f.id} f={f} />)}
+      {(sc.features || []).map(f => <Feature key={f.id} f={f} forceOuvert={forceOuvert} />)}
       <BlocLegendaire items={
         // les capacités légendaires liées à un Patron/Serment sont parfois stockées dans mechanics de la sous-classe
         Array.isArray(sc.mechanics) ? sc.mechanics.map(t => ({ text: t })) : null
@@ -98,10 +99,16 @@ function FicheSousClasse({ sc }) {
 }
 
 function FicheClasse({ c }) {
+  const [forceOuvert, setForceOuvert] = useState(null)
   if (!c) return null
   return (
     <div>
-      <h2 style={{ margin: '0 0 4px' }}>{c.nom}</h2>
+      <div className="rangee" style={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <h2 style={{ margin: '0 0 4px' }}>{c.nom}</h2>
+        <button className="btn clair" onClick={() => setForceOuvert(v => !(v ?? false))}>
+          {forceOuvert ? '▲ replier tout' : '▼ texte complet du manuel'}
+        </button>
+      </div>
       {c.flavour && <p className="citation">{c.flavour}</p>}
       {c.description && <Texte>{c.description}</Texte>}
       <BlocExtra items={c.description_extra} />
@@ -109,7 +116,7 @@ function FicheClasse({ c }) {
 
       <h3>Techniques de classe</h3>
       {(c.features || []).length
-        ? c.features.map(f => <Feature key={f.id} f={f} />)
+        ? c.features.map(f => <Feature key={f.id} f={f} forceOuvert={forceOuvert} />)
         : <p className="aide">Aucune technique renseignée pour l'instant.</p>}
 
       <BlocLegendaire items={c.legendaire} />
@@ -118,7 +125,7 @@ function FicheClasse({ c }) {
       {(c.subclasses || []).length > 0 && (
         <>
           <h3 style={{ marginTop: 24 }}>{c.subclasses_label || 'Spécialisations'}</h3>
-          {c.subclasses.map(sc => <FicheSousClasse key={sc.id} sc={sc} />)}
+          {c.subclasses.map(sc => <FicheSousClasse key={sc.id} sc={sc} forceOuvert={forceOuvert} />)}
         </>
       )}
     </div>
@@ -145,7 +152,7 @@ export default function Wiki() {
           <div className="sous">{c.subclasses?.length || 0} spécialisation{(c.subclasses?.length || 0) > 1 ? 's' : ''}</div>
         </>
       )}
-      enfants={<FicheClasse c={classe} />}
+      enfants={<FicheClasse key={classe?.id} c={classe} />}
     />
   )
 }
