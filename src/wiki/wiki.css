@@ -80,6 +80,21 @@
   background:var(--fond2);color:var(--gris);border:1px solid var(--parch-mid);cursor:pointer}
 .wiki-pastille-sous-classe.actif{background:var(--or);color:var(--bleu-nuit);border-color:var(--or);font-weight:600}
 
+/* ── Filtres multi-critères de l'onglet Sorts ── */
+.wiki-filtres-sorts{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.wiki-filtres-groupe{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.wiki-filtres-label{font-size:.72rem;color:var(--gris);font-variant:small-caps;letter-spacing:.03em;margin-right:2px;}
+.wiki-puce-filtre{font-size:.75rem;padding:4px 10px;border-radius:14px;background:var(--fond2);color:var(--gris);
+  border:1px solid var(--parch-mid);cursor:pointer;}
+.wiki-puce-filtre.actif{background:var(--bleu);color:#fff;border-color:var(--bleu);font-weight:600;}
+
+.wiki-selecteur-fiche{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:.82rem;}
+.wiki-selecteur-fiche label{color:var(--gris);font-variant:small-caps;}
+
+.wiki-bouton-ajout-sort{margin-top:8px;font-size:.78rem;padding:6px 12px;border-radius:6px;
+  border:1px solid var(--or);background:none;color:var(--or);cursor:pointer;font-family:inherit;}
+.wiki-bouton-ajout-sort.actif{background:var(--or);color:var(--bleu-nuit);font-weight:600;}
+
 @media (min-width:720px){
   .wiki-page{padding-top:32px}
 }
