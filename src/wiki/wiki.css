@@ -1,6 +1,15 @@
 .wiki-app{min-height:100vh;background:var(--parch);color:var(--encre);
   font:15px/1.6 "Palatino Linotype",Palatino,"Book Antiqua",serif}
 
+.wiki-nav-croisee{max-width:640px;margin:0 auto;padding:10px 16px 0;display:flex;
+  justify-content:space-between;align-items:center;gap:10px;}
+.wiki-nav-lien{font-size:.8rem;color:var(--bleu);text-decoration:none;font-variant:small-caps;
+  letter-spacing:.03em;}
+.wiki-nav-lien--accent{background:var(--or);color:#26221a;padding:6px 12px;border-radius:6px;font-weight:700;}
+[data-theme="sombre"] .wiki-nav-lien{color:var(--or-clair)}
+
+.wiki-cta-creation{max-width:640px;margin:0 auto;padding:6px 0 24px;display:flex;justify-content:center;}
+
 .wiki-page{max-width:640px;margin:0 auto;padding:16px 16px 48px}
 
 .wiki-retour{background:none;border:none;color:var(--bleu);font-size:.85rem;
@@ -62,6 +71,8 @@
 .wiki-feature{background:var(--carte);border:1px solid var(--parch-mid);border-radius:6px;
   padding:12px 14px;margin-bottom:8px}
 .wiki-feature-nom{font-weight:600;color:var(--titre);margin-bottom:4px;font-size:.92rem}
+.wiki-feature-tete{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+.wiki-feature-cout{font-size:.72rem;color:var(--gris);white-space:nowrap;font-variant:small-caps;}
 .wiki-feature-texte{font-size:.86rem;line-height:1.55;color:var(--encre)}
 
 .wiki-pastilles-sous-classes{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}

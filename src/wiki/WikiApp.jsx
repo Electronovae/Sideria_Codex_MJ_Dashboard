@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { Routes, Route, useNavigate, useParams, Link } from 'react-router-dom'
 import { useClasses } from '../fiches/useClasses.js'
 import { usePeuples, useHistoriques, useDons, useObjets, useServices, useRegles, useDisciplinesSorts, useSorts } from './useWikiData.js'
 import Accueil from './Accueil.jsx'
@@ -13,6 +14,27 @@ import JouerASideria from './JouerASideria.jsx'
 import Sorts from './Sorts.jsx'
 import './wiki.css'
 
+// Chaque section a désormais sa propre URL (/classes, /classes/:id, /sorts, ...)
+// plutôt qu'un simple état interne : on peut donc partager un lien direct vers une page.
+const CIBLE_VERS_CHEMIN = {
+  accueil: '/', classes: '/classes', caracteristiques: '/caracteristiques',
+  origines: '/origines', dons: '/dons', equipement: '/equipement',
+  progression: '/progression', jouer: '/jouer', sorts: '/sorts',
+}
+
+function EcranClasses({ classes }) {
+  const navigate = useNavigate()
+  return <ListeClasses classes={classes} onSelect={id => navigate(`/classes/${id}`)} />
+}
+
+function EcranFicheClasse({ classes }) {
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const classe = classes.find(c => c.id === id)
+  if (!classe) return <div className="wiki-page"><p className="wiki-vide">Classe introuvable.</p></div>
+  return <FicheClasse classe={classe} onRetour={() => navigate('/classes')} />
+}
+
 export default function WikiApp() {
   const { classes, chargement } = useClasses()
   const { peuples, chargement: chargementPeuples } = usePeuples()
@@ -23,13 +45,11 @@ export default function WikiApp() {
   const { regles, chargement: chargementRegles } = useRegles()
   const { disciplines, chargement: chargementDisciplines } = useDisciplinesSorts()
   const { sorts, chargement: chargementSorts } = useSorts()
-  const [vue, setVue] = useState('accueil') // 'accueil' | 'classes' | 'fiche' | 'caracteristiques' | 'origines' | 'dons' | 'equipement' | 'progression'
-  const [selId, setSelId] = useState(null)
-  const classe = classes.find(c => c.id === selId)
+  const navigate = useNavigate()
 
   const naviguer = (cible) => {
     if (cible === 'fiches' || cible === 'connexion') { window.location.href = '/fiches'; return }
-    setVue(cible)
+    navigate(CIBLE_VERS_CHEMIN[cible] || '/')
   }
 
   if (chargement) {
@@ -38,43 +58,32 @@ export default function WikiApp() {
 
   return (
     <div className="wiki-app">
-      {vue === 'accueil' && <Accueil onNaviguer={naviguer} />}
-      {vue === 'classes' && !classe && (
-        <>
-          <button className="wiki-retour" style={{ marginLeft: 16, marginTop: 12 }} onClick={() => setVue('accueil')}>
-            ← Accueil
-          </button>
-          <ListeClasses classes={classes} onSelect={id => { setSelId(id); setVue('fiche') }} />
-        </>
-      )}
-      {vue === 'fiche' && classe && (
-        <FicheClasse classe={classe} onRetour={() => { setSelId(null); setVue('classes') }} />
-      )}
-      {vue === 'caracteristiques' && (
-        <PageCaracteristiques onRetour={() => setVue('accueil')} />
-      )}
-      {vue === 'origines' && (
-        <Origines peuples={peuples} historiques={historiques}
-          chargement={chargementPeuples || chargementHistoriques} onRetour={() => setVue('accueil')} />
-      )}
-      {vue === 'dons' && (
-        <Dons dons={dons} chargement={chargementDons} onRetour={() => setVue('accueil')} />
-      )}
-      {vue === 'equipement' && (
-        <Equipement objets={objets} services={services}
-          chargement={chargementObjets || chargementServices} onRetour={() => setVue('accueil')} />
-      )}
-      {vue === 'progression' && (
-        <Progression regles={regles} chargement={chargementRegles} onRetour={() => setVue('accueil')} />
-      )}
-      {vue === 'jouer' && (
-        <JouerASideria regles={regles} chargement={chargementRegles} onRetour={() => setVue('accueil')} />
-      )}
-      {vue === 'sorts' && (
-        <Sorts disciplines={disciplines} sorts={sorts}
-          chargement={chargementDisciplines || chargementSorts} onRetour={() => setVue('accueil')} />
-      )}
+      <div className="wiki-nav-croisee">
+        <Link to="/" className="wiki-nav-lien">Codex</Link>
+        <a href="/fiches" className="wiki-nav-lien wiki-nav-lien--accent">Mes fiches perso ↗</a>
+      </div>
+      <Routes>
+        <Route path="/" element={<Accueil onNaviguer={naviguer} />} />
+        <Route path="/classes" element={<EcranClasses classes={classes} />} />
+        <Route path="/classes/:id" element={<EcranFicheClasse classes={classes} />} />
+        <Route path="/caracteristiques" element={<PageCaracteristiques onRetour={() => navigate('/')} />} />
+        <Route path="/origines" element={
+          <Origines peuples={peuples} historiques={historiques}
+            chargement={chargementPeuples || chargementHistoriques} onRetour={() => navigate('/')} />
+        } />
+        <Route path="/dons" element={<Dons dons={dons} chargement={chargementDons} onRetour={() => navigate('/')} />} />
+        <Route path="/equipement" element={
+          <Equipement objets={objets} services={services}
+            chargement={chargementObjets || chargementServices} onRetour={() => navigate('/')} />
+        } />
+        <Route path="/progression" element={<Progression regles={regles} chargement={chargementRegles} onRetour={() => navigate('/')} />} />
+        <Route path="/jouer" element={<JouerASideria regles={regles} chargement={chargementRegles} onRetour={() => navigate('/')} />} />
+        <Route path="/sorts" element={
+          <Sorts disciplines={disciplines} sorts={sorts}
+            chargement={chargementDisciplines || chargementSorts} onRetour={() => navigate('/')} />
+        } />
+        <Route path="*" element={<Accueil onNaviguer={naviguer} />} />
+      </Routes>
     </div>
   )
 }
-

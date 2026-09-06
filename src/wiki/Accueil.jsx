@@ -1,38 +1,5 @@
 import React from 'react'
 
-const ETAPES = [
-  {
-    titre: '1. Choisis ta classe',
-    texte: "16 classes, chacune avec 2 à 6 spécialisations. Si tu hésites, regarde les tags de rôle (Corps à corps, Lanceur de sorts, Soutien...) sur chaque carte.",
-    action: 'classes',
-  },
-  {
-    titre: '2. Répartis tes caractéristiques',
-    texte: 'For, Dex, Con, Int, Sag, Cha et Éclat (7e caractéristique sidérienne). Méthode de lancer détaillée, table des modificateurs et bonus de peuple.',
-    action: 'caracteristiques',
-  },
-  {
-    titre: '3. Note tes techniques de départ',
-    texte: "Chaque classe a des techniques de base, débloquées ensuite via les Fragments (1d4 par niveau). Tu les retrouves dans l'onglet Techniques de ta fiche de classe.",
-    action: 'classes',
-  },
-  {
-    titre: '4. Choisis ton équipement',
-    texte: "Armes et armures autorisées dépendent de ta classe : c'est indiqué dans le bloc \u00ab Bases \u00bb en haut de chaque fiche de classe.",
-    action: 'equipement',
-  },
-  {
-    titre: '5. Défini ton personnage',
-    texte: "Origine, faction, traits de personnalité : ce qui rendra ton personnage vivant à la table.",
-    action: 'origines',
-  },
-  {
-    titre: '6. Crée ta fiche',
-    texte: 'Une fois ces choix faits, direction les fiches de personnage pour tout renseigner officiellement.',
-    action: 'fiches',
-  },
-]
-
 const SECTIONS = [
   { titre: 'Parcourir les 16 classes', accroche: 'Techniques complètes, spécialisations, capacités légendaires.', action: 'classes' },
   { titre: 'Origines', accroche: 'Peuples et historiques : bonus de départ, compétences, capacités narratives.', action: 'origines' },
@@ -85,23 +52,13 @@ export default function Accueil({ onNaviguer }) {
         ))}
       </div>
 
-      <h2 className="wiki-sous-titre-section" style={{ marginTop: 0 }}>Créer un personnage</h2>
-      <div className="wiki-etapes">
-        {ETAPES.map((e, i) => (
-          <div key={i} className="wiki-etape">
-            <div className="wiki-etape-titre">{e.titre}</div>
-            <p className="wiki-etape-texte">{e.texte}</p>
-            {e.action && (
-              <button className="wiki-etape-lien" onClick={() => onNaviguer(e.action)}>
-                {e.action === 'fiches' ? 'Aller créer ma fiche →'
-                  : e.action === 'caracteristiques' ? 'Voir la méthode →'
-                  : e.action === 'origines' ? 'Voir les origines →'
-                  : e.action === 'equipement' ? "Voir l'équipement →"
-                  : 'Voir les classes →'}
-              </button>
-            )}
-          </div>
-        ))}
+      <div className="wiki-cta-creation">
+        <button className="wiki-etape-lien" style={{
+          background: 'var(--or)', color: '#26221a', padding: '12px 22px',
+          borderRadius: 8, fontSize: '.95rem', fontWeight: 700,
+        }} onClick={() => onNaviguer('fiches')}>
+          + Créer un personnage →
+        </button>
       </div>
     </div>
   )
