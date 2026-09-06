@@ -294,3 +294,5 @@
 .recap-carac-label{font-size:.68em;color:var(--gris);font-variant:small-caps;letter-spacing:.03em;}
 .recap-carac-valeur{font-size:1.15em;font-weight:700;color:var(--bleu);}
 .recap-ligne{font-size:.88em;margin:6px 0;}
+.carte-choix-badge{display:inline-block;margin-left:6px;font-size:.68em;background:var(--or);color:#26221a;
+  padding:1px 6px;border-radius:3px;font-weight:700;vertical-align:middle;}

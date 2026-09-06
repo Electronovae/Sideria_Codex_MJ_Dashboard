@@ -72,6 +72,11 @@ export default function CreationGuidee({ player }) {
     return sorts.filter(s => s.sous_type?.includes(nomCourt))
   }, [sorts, classe, estLanceurDeSorts, nomCourt])
 
+  // Pré-sélectionne le set de sorts de départ défini par le MJ pour cette classe.
+  React.useEffect(() => {
+    if (classe?.sorts_depart?.length) setSortsChoisis(classe.sorts_depart)
+  }, [classeId])
+
   const peuple = peuples.find(p => p.id === peupleId)
   const historique = historiques.find(h => h.id === historiqueId)
 
@@ -326,13 +331,16 @@ export default function CreationGuidee({ player }) {
           <div>
             <p style={{ fontSize: '.86rem', color: 'var(--gris, #8a8478)' }}>
               Sorts exclusifs à ta classe. Les sorts « Tronc commun » de tes disciplines restent accessibles en jeu — vois ça avec ton MJ.
+              {classe?.sorts_depart?.length > 0 && <> Le <strong>set de départ</strong> défini par le MJ est déjà coché ci-dessous.</>}
             </p>
             <div className="dons-grille">
               {sortsDisponibles.map(s => (
                 <label key={s.id} className={'carte-choix' + (sortsChoisis.includes(s.id) ? ' carte-choix--sel' : '')}>
                   <input type="checkbox" checked={sortsChoisis.includes(s.id)} onChange={() => basculerSort(s.id)} />
                   <span>
-                    <span className="carte-choix-nom">{s.nom}</span>
+                    <span className="carte-choix-nom">
+                      {s.nom}{classe?.sorts_depart?.includes(s.id) && <span className="carte-choix-badge">set de départ</span>}
+                    </span>
                     <span className="carte-choix-meta">{s.sous_type} · {s.meta}</span>
                   </span>
                 </label>
