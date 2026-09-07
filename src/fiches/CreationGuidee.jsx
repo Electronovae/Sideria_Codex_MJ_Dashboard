@@ -313,15 +313,14 @@ export default function CreationGuidee({ player }) {
             <p style={{ fontSize: '.86rem', color: 'var(--gris, #8a8478)' }}>
               1 don au niveau 1 (génériques ou exclusifs à ta classe). Les dons de maîtrise demandent des prérequis non atteints à la création.
             </p>
-            <div className="dons-grille">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
               {donsDisponibles.map(d => (
-                <label key={d.id} className={'carte-choix' + (donsChoisis.includes(d.id) ? ' carte-choix--sel' : '')}>
-                  <input type="checkbox" checked={donsChoisis.includes(d.id)} onChange={() => basculerDon(d.id)} />
-                  <span>
-                    <span className="carte-choix-nom">{d.nom}</span>
-                    <span className="carte-choix-meta">{d.description}</span>
-                  </span>
-                </label>
+                <button key={d.id} type="button" className="fiches-btn fiches-btn--discret carte-choix"
+                  style={{ textAlign: 'left', border: donsChoisis.includes(d.id) ? '2px solid var(--or, #c9a227)' : undefined }}
+                  onClick={() => basculerDon(d.id)}>
+                  <strong>{d.nom}</strong>
+                  <span className="carte-choix-meta">{d.description}</span>
+                </button>
               ))}
             </div>
           </div>
@@ -333,17 +332,16 @@ export default function CreationGuidee({ player }) {
               Sorts exclusifs à ta classe. Les sorts « Tronc commun » de tes disciplines restent accessibles en jeu — vois ça avec ton MJ.
               {classe?.sorts_depart?.length > 0 && <> Le <strong>set de départ</strong> défini par le MJ est déjà coché ci-dessous.</>}
             </p>
-            <div className="dons-grille">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
               {sortsDisponibles.map(s => (
-                <label key={s.id} className={'carte-choix' + (sortsChoisis.includes(s.id) ? ' carte-choix--sel' : '')}>
-                  <input type="checkbox" checked={sortsChoisis.includes(s.id)} onChange={() => basculerSort(s.id)} />
-                  <span>
-                    <span className="carte-choix-nom">
-                      {s.nom}{classe?.sorts_depart?.includes(s.id) && <span className="carte-choix-badge">set de départ</span>}
-                    </span>
-                    <span className="carte-choix-meta">{s.sous_type} · {s.meta}</span>
-                  </span>
-                </label>
+                <button key={s.id} type="button" className="fiches-btn fiches-btn--discret carte-choix"
+                  style={{ textAlign: 'left', border: sortsChoisis.includes(s.id) ? '2px solid var(--or, #c9a227)' : undefined }}
+                  onClick={() => basculerSort(s.id)}>
+                  <strong>
+                    {s.nom}{classe?.sorts_depart?.includes(s.id) && <span className="carte-choix-badge">set de départ</span>}
+                  </strong>
+                  <span className="carte-choix-meta">{s.sous_type} · {s.meta}</span>
+                </button>
               ))}
             </div>
           </div>
