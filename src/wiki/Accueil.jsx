@@ -21,7 +21,7 @@ export default function Accueil({ onNaviguer }) {
           Sidéria est une cité tentaculaire bâtie sur l'exploitation de l'Éther, une énergie brute qui alimente
           machines, magie et ambitions. En surface, l'Arcadie prospère sous ses dômes de cuivre et de verre.
           En contrebas, les Bas-Fonds respirent la fumée des forges et les secrets qu'on y enterre.
-          Entre les deux : toi, et les choix qui feront ta légende — ou ta perte.
+          Entre les deux : toi, et les choix qui feront ta légende, ou ta perte.
         </p>
         <div className="wiki-hero-cta">
           <button className="wiki-hero-bouton wiki-hero-bouton--principal" onClick={() => onNaviguer('fiches')}>
