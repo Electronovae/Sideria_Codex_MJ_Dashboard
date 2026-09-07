@@ -58,7 +58,9 @@ export default function CreationGuidee({ player }) {
 
   const classe = classes.find(c => c.id === classeId)
   const nomCourt = nomCourtClasse(classe?.nom)
-  const estLanceurDeSorts = !!classe?.base?.fields?.some(f => f.label === 'Magie')
+  const estLanceurDeSorts = !!classe?.base?.fields?.some(f =>
+    f.label === 'Magie' && !/^aucune\b|pas de convertisseur/i.test(f.value || '')
+  )
 
   const chargement = chargClasses || chargPeuples || chargHistoriques || chargDons || chargSorts
 
@@ -102,8 +104,15 @@ export default function CreationGuidee({ player }) {
   const basculerDon = (id) => {
     setDonsChoisis(prev => prev.includes(id) ? prev.filter(x => x !== id) : (prev.length >= 1 ? prev : [...prev, id]))
   }
+  const capSorts = classe?.sorts_max_depart ?? 3
+  const sortsVerrouilles = classe?.sorts_depart || []
   const basculerSort = (id) => {
-    setSortsChoisis(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+    if (sortsVerrouilles.includes(id)) return // fait partie du set de départ imposé par le MJ, non désélectionnable
+    setSortsChoisis(prev => {
+      if (prev.includes(id)) return prev.filter(x => x !== id)
+      if (prev.length >= capSorts) return prev // plafond atteint
+      return [...prev, id]
+    })
   }
 
   const peutAvancer = () => {
@@ -330,19 +339,34 @@ export default function CreationGuidee({ player }) {
           <div>
             <p style={{ fontSize: '.86rem', color: 'var(--gris, #8a8478)' }}>
               Sorts exclusifs à ta classe. Les sorts « Tronc commun » de tes disciplines restent accessibles en jeu — vois ça avec ton MJ.
-              {classe?.sorts_depart?.length > 0 && <> Le <strong>set de départ</strong> défini par le MJ est déjà coché ci-dessous.</>}
+              {sortsVerrouilles.length > 0 && <> Le <strong>set de départ</strong> défini par le MJ est déjà inclus et verrouillé ci-dessous.</>}
+            </p>
+            <p style={{ fontSize: '.82rem', fontWeight: 700, color: sortsChoisis.length >= capSorts ? 'var(--or, #c9a227)' : 'var(--bleu, #1d3350)' }}>
+              {sortsChoisis.length} / {capSorts} sorts sélectionnés
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
-              {sortsDisponibles.map(s => (
-                <button key={s.id} type="button" className="fiches-btn fiches-btn--discret carte-choix"
-                  style={{ textAlign: 'left', border: sortsChoisis.includes(s.id) ? '2px solid var(--or, #c9a227)' : undefined }}
-                  onClick={() => basculerSort(s.id)}>
-                  <strong>
-                    {s.nom}{classe?.sorts_depart?.includes(s.id) && <span className="carte-choix-badge">set de départ</span>}
-                  </strong>
-                  <span className="carte-choix-meta">{s.sous_type} · {s.meta}</span>
-                </button>
-              ))}
+              {sortsDisponibles.map(s => {
+                const verrouille = sortsVerrouilles.includes(s.id)
+                const selectionne = sortsChoisis.includes(s.id)
+                const desactive = !verrouille && !selectionne && sortsChoisis.length >= capSorts
+                return (
+                  <button key={s.id} type="button" className="fiches-btn fiches-btn--discret carte-choix"
+                    disabled={desactive}
+                    style={{
+                      textAlign: 'left',
+                      border: selectionne ? '2px solid var(--or, #c9a227)' : undefined,
+                      opacity: desactive ? .45 : 1,
+                      cursor: verrouille ? 'default' : undefined,
+                    }}
+                    onClick={() => basculerSort(s.id)}>
+                    <strong>
+                      {s.nom}
+                      {verrouille && <span className="carte-choix-badge">set de départ 🔒</span>}
+                    </strong>
+                    <span className="carte-choix-meta">{s.sous_type} · {s.meta}</span>
+                  </button>
+                )
+              })}
             </div>
           </div>
         )}
