@@ -47,6 +47,52 @@ function JaugeVisuelle({ label, valeur, max, onChangeValeur, onChangeMax, couleu
   )
 }
 
+// Jauge de progression de la cristallite : bande segmentée sur les 8 stades,
+// cliquable pour choisir directement un stade.
+function JaugeCristallite({ code, onChange }) {
+  const idx = Math.max(0, ETAPES_CRISTALLITE.findIndex(([c]) => c === String(code)))
+  return (
+    <div className="jauge-cristallite">
+      <div className="jauge-cristallite-barre">
+        {ETAPES_CRISTALLITE.map(([c, nom], i) => (
+          <div key={c} className={'jauge-cristallite-seg' + (i <= idx ? ' actif' : '')}
+            title={`${c} · ${nom}`} onClick={() => onChange(c)} />
+        ))}
+      </div>
+      <div className="jauge-cristallite-label">
+        Stade {ETAPES_CRISTALLITE[idx]?.[0]} — {ETAPES_CRISTALLITE[idx]?.[1] || '—'}
+      </div>
+    </div>
+  )
+}
+
+// Jauge de réputation façon "compteur de pression" : centrée sur 0, remplissage
+// vers le rouge (hostile) ou le vert (allié) selon le signe.
+function JaugePression({ valeur, min = -4, max = 4, onChange, couleur }) {
+  const v = valeur ?? 0
+  const total = max - min
+  const pctZero = ((0 - min) / total) * 100
+  const pctVal = ((v - min) / total) * 100
+  const hostile = v < 0
+  const gererClic = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
+    onChange(Math.round(min + ratio * total))
+  }
+  return (
+    <div className="jauge-pression" onClick={gererClic} title="Cliquer pour ajuster">
+      <div className="jauge-pression-fond">
+        {hostile
+          ? <div className="jauge-pression-remplissage jauge-pression-remplissage--hostile"
+              style={{ left: pctVal + '%', width: (pctZero - pctVal) + '%', background: 'var(--rouge)' }} />
+          : <div className="jauge-pression-remplissage jauge-pression-remplissage--allie"
+              style={{ left: pctZero + '%', width: (pctVal - pctZero) + '%', background: couleur || 'var(--vert)' }} />}
+        <div className="jauge-pression-zero" style={{ left: pctZero + '%' }} />
+      </div>
+    </div>
+  )
+}
+
 export default function FeuilleDePersonnage({ estMJ }) {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -207,12 +253,6 @@ export default function FeuilleDePersonnage({ estMJ }) {
               </span>
             </div>
           ))}
-          <div className="vital vital--carac">
-            <span className="vital-label">ÉCL</span>
-            <span className="vital-valeur">{fiche.stats?.ecl ?? 0}
-              <span className="vital-sur">{modificateur(fiche.stats?.ecl ?? 0) >= 0 ? ' +' : ' '}{modificateur(fiche.stats?.ecl ?? 0)}</span>
-            </span>
-          </div>
         </div>
 
         <nav className="feuille-tabs">
@@ -238,7 +278,7 @@ export default function FeuilleDePersonnage({ estMJ }) {
             <input type="file" accept="image/*" onChange={gererFichierPortrait} disabled={televersement} style={{ display: 'none' }} />
           </label>
         </div>
-        <div className="fc-grille fc-grille--4">
+        <div className="fc-grille fc-grille--5">
           {champ('Nom', 'name')}
           <label className="fc-champ">
             <span>Peuple / Origine</span>
@@ -251,6 +291,7 @@ export default function FeuilleDePersonnage({ estMJ }) {
             </select>
           </label>
           {champ('Niveau Sidérien', 'level', 'number')}
+          {champ('Pièces d\u2019or', 'gold', 'number')}
           <div className="fc-champ fc-champ--compteur">
             <span>Fragments</span>
             <div className="compteur">
@@ -309,15 +350,12 @@ export default function FeuilleDePersonnage({ estMJ }) {
                   </label>
                 ))}
               </div>
+              {cle === 'ecl' && (
+                <p style={{ fontSize: '.68em', color: 'var(--gris)', fontStyle: 'italic', marginTop: 4 }}>
+                  Cristallite (CON/ÉCL) · Conduit · Traceur</p>
+              )}
             </div>
           ))}
-          <div className="carac-bloc carac-bloc--ecl">
-            <div className="carac-nom">Éclat (ÉCL)</div>
-            <input type="number" className="carac-valeur" value={fiche.stats?.ecl ?? 0}
-              onChange={e => modifierJson('stats', 'ecl', Number(e.target.value))} />
-            <div className="carac-mod">{modificateur(fiche.stats?.ecl ?? 0) >= 0 ? '+' : ''}{modificateur(fiche.stats?.ecl ?? 0)}</div>
-            <p style={{ fontSize: '.68em', color: 'var(--gris)', fontStyle: 'italic', marginTop: 4 }}>Cristallite (CON/ÉCL) · Conduit · Traceur</p>
-          </div>
         </div>
 
         <div className="feuille-sousbloc">
@@ -422,6 +460,7 @@ export default function FeuilleDePersonnage({ estMJ }) {
 
       <section className="feuille-bloc" hidden={ongletActif !== 'role'}>
         <h2>Cristallite</h2>
+        <JaugeCristallite code={fiche.cristallite} onChange={c => modifier('cristallite', c)} />
         <table className="feuille-table">
           <thead><tr><th>Stade</th><th>Nom</th></tr></thead>
           <tbody>
@@ -471,8 +510,8 @@ export default function FeuilleDePersonnage({ estMJ }) {
                 <span style={{ background: f?.couleur || '#888', display: 'inline-block', width: 9, height: 9, borderRadius: '50%', marginRight: 6 }} />
                 {f?.nom || 'Faction inconnue'}
               </span>
-              <input type="range" min="-4" max="4" step="1" value={val}
-                onChange={e => modifierJson('factions', factionOuverte, Number(e.target.value))} />
+              <JaugePression valeur={val} couleur={f?.couleur}
+                onChange={v => modifierJson('factions', factionOuverte, v)} />
               <span className="val">{val > 0 ? '+' : ''}{val}</span>
               <button className="ligne-suppr" onClick={() => {
                 const copie = { ...fiche.factions }
