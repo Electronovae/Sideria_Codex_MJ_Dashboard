@@ -13,9 +13,29 @@ const SECTIONS = [
 export default function Accueil({ onNaviguer }) {
   return (
     <div className="wiki-page">
-      <div className="wiki-entete" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+      <div className="wiki-hero">
+        <div className="wiki-hero-fil" />
+        <h1 className="wiki-hero-titre">Sidéria <span>— L'Ère de l'Éther</span></h1>
+        <p className="wiki-hero-baseline">Un jeu de rôle steampunk-fantasy</p>
+        <p className="wiki-hero-pitch">
+          Sidéria est une cité tentaculaire bâtie sur l'exploitation de l'Éther, une énergie brute qui alimente
+          machines, magie et ambitions. En surface, l'Arcadie prospère sous ses dômes de cuivre et de verre.
+          En contrebas, les Bas-Fonds respirent la fumée des forges et les secrets qu'on y enterre.
+          Entre les deux : toi, et les choix qui feront ta légende — ou ta perte.
+        </p>
+        <div className="wiki-hero-cta">
+          <button className="wiki-hero-bouton wiki-hero-bouton--principal" onClick={() => onNaviguer('fiches')}>
+            + Créer un personnage
+          </button>
+          <button className="wiki-hero-bouton" onClick={() => onNaviguer('classes')}>
+            Explorer le Codex ↓
+          </button>
+        </div>
+      </div>
+
+      <div className="wiki-entete" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginTop: 34 }}>
         <div>
-          <h1>Codex de Sidéria</h1>
+          <h2 className="wiki-sous-titre-section" style={{ marginTop: 0 }}>Le Codex</h2>
           <p className="wiki-sous-titre" style={{ marginBottom: 0 }}>
             Le manuel des joueurs, en version consultable. Plus besoin d'ouvrir le PDF.
           </p>
@@ -28,13 +48,7 @@ export default function Accueil({ onNaviguer }) {
         </button>
       </div>
 
-      <p className="wiki-description" style={{ marginTop: 16, marginBottom: 22 }}>
-        Sidéria est une cité tentaculaire où l'Éther irrigue tout : l'industrie, la magie, les inégalités
-        entre l'Arcadie et les Bas-Fonds. Ce codex rassemble tout ce qu'il te faut pour y créer et jouer
-        un personnage — classes, origines, dons, équipement et règles de base.
-      </p>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16, marginBottom: 20 }}>
         {SECTIONS.map(s => (
           <button
             key={s.titre}
