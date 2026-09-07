@@ -106,3 +106,19 @@
 .wiki-etape-lien{background:none;border:none;color:var(--bleu);font-size:.82rem;font-weight:600;
   padding:0;cursor:pointer;font-family:inherit}
 [data-theme="sombre"] .wiki-etape-lien{color:var(--or-clair)}
+
+/* ── Vraie page de présentation (hero) en haut de l'accueil ── */
+.wiki-hero{position:relative;padding:34px 22px 30px;text-align:center;background:
+  radial-gradient(ellipse at top, rgba(201,162,39,.14), transparent 70%), var(--carte);
+  border:1px solid var(--parch-mid);border-radius:10px;overflow:hidden;}
+.wiki-hero-fil{position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg, transparent, var(--or), transparent);}
+.wiki-hero-titre{font-size:1.7rem;font-variant:small-caps;letter-spacing:.04em;color:var(--titre);margin-bottom:4px;}
+.wiki-hero-titre span{color:var(--gris);font-size:.75em;font-variant:normal;letter-spacing:0;}
+.wiki-hero-baseline{color:var(--or);font-size:.82rem;text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px;}
+.wiki-hero-pitch{max-width:520px;margin:0 auto 22px;font-size:.92rem;line-height:1.65;color:var(--encre);font-style:italic;}
+.wiki-hero-cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.wiki-hero-bouton{border:1px solid var(--champ-bord);background:var(--champ);color:var(--bleu);
+  padding:10px 18px;border-radius:8px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;}
+.wiki-hero-bouton--principal{background:var(--or);color:#26221a;border-color:var(--or);}
+@media (max-width:520px){.wiki-hero{padding:26px 16px 22px;}.wiki-hero-titre{font-size:1.35rem;}}
