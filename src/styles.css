@@ -83,7 +83,7 @@ table.grille input,table.grille select{padding:3px 5px;font-size:.82rem}
 .puce .rond{width:9px;height:9px;border-radius:50%}
 .jauge-rep{display:flex;align-items:center;gap:8px;margin:3px 0}
 .jauge-rep .nom{width:190px;font-size:.82rem}
-.jauge-rep input[type=range]{flex:1}
+.jauge-rep input[type=range],.jauge-rep .jauge-pression{flex:1}
 .jauge-rep .val{width:32px;text-align:right;font:12px var(--mono)}
 .carte{background:var(--carte);border:1px solid var(--parch-mid);border-left:4px solid var(--or);
   padding:12px 14px;margin:8px 0;border-radius:2px}
