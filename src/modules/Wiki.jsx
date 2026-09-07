@@ -104,6 +104,7 @@ function EditeurSortsDepart({ classe }) {
   const { sorts, chargement: chargSorts } = useSorts()
   const { disciplines, chargement: chargDisc } = useDisciplinesSorts()
   const [sortsDepart, setSortsDepart] = useState(classe.sorts_depart || [])
+  const [maxDepart, setMaxDepart] = useState(classe.sorts_max_depart ?? 3)
   const [enregistrement, setEnregistrement] = useState(false)
   const nomCourt = (classe.nom || '').replace(/^(Le |La |L')/, '')
 
@@ -122,9 +123,22 @@ function EditeurSortsDepart({ classe }) {
     setEnregistrement(false)
   }
 
+  const changerMax = async (valeur) => {
+    const v = Math.max(0, Number(valeur) || 0)
+    setMaxDepart(v)
+    setEnregistrement(true)
+    await supabase.from('classes_sideria').update({ sorts_max_depart: v }).eq('id', classe.id)
+    setEnregistrement(false)
+  }
+
   return (
     <div>
-      <p className="aide">Coché ici, un sort est proposé pré-sélectionné à l'étape « Sorts » de l'assistant de création de personnage.
+      <div className="rangee" style={{ gap: 8, alignItems: 'baseline', marginBottom: 10 }}>
+        <label style={{ fontWeight: 600 }}>Nombre de sorts sélectionnables à la création :</label>
+        <input type="number" min="0" style={{ width: 60 }} value={maxDepart}
+          onChange={e => changerMax(e.target.value)} />
+      </div>
+      <p className="aide">Coché ici, un sort est imposé (verrouillé) et compte dans le plafond ci-dessus à l'étape « Sorts » de l'assistant de création.
         {enregistrement && ' Enregistrement…'}
       </p>
       {sortsDisponibles.map(s => (
