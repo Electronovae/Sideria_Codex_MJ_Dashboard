@@ -11,6 +11,7 @@ export default function Frise() {
   const [vue, setVue] = useState({ t0: versJour(300), ech: 0.06 })
   const [largeur, setLargeur] = useState(900)
   const [filtreFac, setFiltreFac] = useState(() => new Set(univers.factions.map(f => f.id)))
+  const [sansFaction, setSansFaction] = useState(true)
   const [filtreTypes, setFiltreTypes] = useState(() => new Set(['PJ', 'PNJ']))
   const [survol, setSurvol] = useState(null)
   const [panneauArcs, setPanneauArcs] = useState(false)
@@ -69,7 +70,7 @@ export default function Frise() {
     { id: '__general__', nom: 'Général (sans PNJ/PJ)', type: 'GEN', faction: null },
     ...(filtreTypes.has('PJ') ? univers.joueurs.map(j => ({ id: j.id, nom: j.personnage, type: 'PJ', faction: j.faction })) : []),
     ...(filtreTypes.has('PNJ') ? univers.pnjs.map(p => ({ id: p.id, nom: p.nom, type: 'PNJ', faction: p.factionIds?.[0] ?? null })) : []),
-  ].filter(l => l.faction == null || filtreFac.has(l.faction))
+  ].filter(l => l.faction == null ? sansFaction : filtreFac.has(l.faction))
   const indexLigne = Object.fromEntries(lignes.map((l, i) => [l.id, i]))
   const xDe = (j) => (j - vue.t0) * vue.ech
   const jDe = (x) => vue.t0 + x / vue.ech
@@ -173,6 +174,9 @@ export default function Frise() {
         {['PJ', 'PNJ'].map(t => <span key={t} className={'puce' + (filtreTypes.has(t) ? '' : ' off')}
           style={{ borderColor: 'var(--or)' }} onClick={() => bascule(filtreTypes, setFiltreTypes, t)}>{t}</span>)}
         <button className="btn clair" onClick={() => setFiltreFac(new Set(univers.factions.map(f => f.id)))}>toutes</button>
+        <span className={'puce' + (sansFaction ? '' : ' off')} style={{ borderColor: '#8a8272' }}
+          title="Afficher les lignes/éléments sans faction" onClick={() => setSansFaction(v => !v)}>
+          <span className="rond" style={{ background: '#8a8272' }} />sans faction</span>
         {univers.factions.map(f => <span key={f.id} className={'puce' + (filtreFac.has(f.id) ? '' : ' off')}
           style={{ borderColor: f.couleur }} title="Ctrl+Clic : isoler cette faction"
           onClick={(ev) => (ev.ctrlKey || ev.metaKey) ? setFiltreFac(new Set([f.id])) : bascule(filtreFac, setFiltreFac, f.id)}>
