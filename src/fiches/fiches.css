@@ -274,14 +274,12 @@
 .jet-carac select{flex:none;max-width:100px;}
 
 /* ── Assistant de création : étape Dons / Sorts ── */
-.dons-grille{display:grid;grid-template-columns:1fr;gap:8px;margin-top:4px;}
-.carte-choix{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--champ);
-  border:1px solid var(--champ-bord);border-radius:4px;cursor:pointer;transition:border-color .15s ease;}
-.carte-choix:hover{border-color:var(--or);}
-.carte-choix--sel{border-color:var(--or);background:rgba(201,162,39,.08);}
-.carte-choix input{margin-top:3px;flex:none;}
+/* Réutilise exactement le même habillage que les boutons classe/peuple/historique
+   (fiches-btn fiches-btn--discret) pour rester visuellement cohérent tout du long. */
+.carte-choix{display:block !important;width:100%;padding:10px 12px !important;}
+.carte-choix strong{display:block;color:var(--bleu);}
 .carte-choix-nom{display:block;font-weight:700;color:var(--bleu);}
-.carte-choix-meta{display:block;color:var(--gris);font-size:.85em;margin-top:2px;}
+.carte-choix-meta{display:block;color:var(--gris);font-size:.85em;margin-top:3px;font-weight:400;line-height:1.4;}
 
 /* ── Assistant de création : étape Récapitulatif ── */
 .recap-fiche{background:var(--champ);border:1px solid var(--champ-bord);border-radius:6px;padding:16px;}
