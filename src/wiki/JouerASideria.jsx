@@ -27,6 +27,16 @@ export default function JouerASideria({ regles, chargement, onRetour }) {
         <p className="wiki-sous-titre">Les règles de base : caractéristiques, compétences, combat, aventure et marchandises.</p>
       </div>
 
+      <div className="wiki-encart" style={{ marginBottom: 18 }}>
+        <div className="wiki-encart-titre">Avant de commencer</div>
+        <p style={{ margin: 0 }}>
+          Cette section rassemble tout ce qu'il faut pour jouer une fois ta fiche créée : comment fonctionnent
+          tes caractéristiques et compétences, l'économie d'actions en combat, le déplacement, et la vie
+          quotidienne à Sidéria (monnaie, marchandises, services). Utilise les onglets ci-dessous pour naviguer
+          par thème — ou demande directement à ton MJ si un point te semble flou en pleine partie.
+        </p>
+      </div>
+
       <div className="wiki-pastilles-sous-classes">
         {categories.map(c => (
           <span key={c} className={'wiki-pastille-sous-classe' + (c === catActive ? ' actif' : '')}
