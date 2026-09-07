@@ -85,10 +85,14 @@ export default function Joueurs() {
     c.sessions.filter(s => (s.joueurIds || []).includes(j.id)).map(s => ({ ...s, campagne: c }))
   ).sort((a, b) => (a.date ?? 0) - (b.date ?? 0)) : []
 
+  const nbRelies = univers.joueurs.filter(x => x.characterId).length
+
   return (
     <ListeFiche
       items={univers.joueurs} selId={selId} surSel={setSelId} surAjout={ajouter}
       libelleAjout="+ Nouveau personnage joueur"
+      entete={<p className="aide" style={{ padding: '0 14px 8px' }}>
+        🔗 {nbRelies} / {univers.joueurs.length} fiche(s) personnage reliée(s)</p>}
       tris={{
         personnage: x => x.personnage,
         joueur: x => x.joueur,
@@ -98,7 +102,10 @@ export default function Joueurs() {
       rendu={p => {
         const f = univers.factions.find(x => x.id === p.faction)
         return (<><span className="rond" style={{ background: f?.couleur || '#888' }} />
-          <span>{p.personnage}<div className="sous">{p.joueur} · niv. {p.niveau}</div></span></>)
+          <span>{p.personnage}
+            {p.characterId && <span title="Fiche personnage reliée" style={{ marginLeft: 6, color: 'var(--or)' }}>🔗</span>}
+            <div className="sous">{p.joueur} · niv. {p.niveau}</div>
+          </span></>)
       }}
       enfants={j && (
         <div key={j.id}>
