@@ -237,7 +237,7 @@ export default function FeuilleDePersonnage({ estMJ }) {
           </div>
           <div className="vital">
             <span className="vital-label">Fragments</span>
-            <span className="vital-valeur">{fiche.fragments_current ?? 0}<span className="vital-sur">/{fiche.fragments_max ?? 0}</span></span>
+            <span className="vital-valeur">{fiche.fragments_current ?? 0}</span>
           </div>
           <div className="vital vital--cristallite">
             <span className="vital-label">Cristallite</span>
@@ -278,7 +278,7 @@ export default function FeuilleDePersonnage({ estMJ }) {
             <input type="file" accept="image/*" onChange={gererFichierPortrait} disabled={televersement} style={{ display: 'none' }} />
           </label>
         </div>
-        <div className="fc-grille fc-grille--5">
+        <div className="fc-grille fc-grille--4">
           {champ('Nom', 'name')}
           <label className="fc-champ">
             <span>Peuple / Origine</span>
@@ -291,19 +291,7 @@ export default function FeuilleDePersonnage({ estMJ }) {
             </select>
           </label>
           {champ('Niveau Sidérien', 'level', 'number')}
-          {champ('Pièces d\u2019or', 'gold', 'number')}
-          <div className="fc-champ fc-champ--compteur">
-            <span>Fragments</span>
-            <div className="compteur">
-              <button type="button" className="compteur-btn" onClick={() => modifier('fragments_current', Math.max(0, (fiche.fragments_current ?? 0) - 1))}>−</button>
-              <input type="number" className="compteur-valeur" value={fiche.fragments_current ?? 0}
-                onChange={e => modifier('fragments_current', Number(e.target.value))} />
-              <span className="compteur-sur">/</span>
-              <input type="number" className="compteur-max" value={fiche.fragments_max ?? 0}
-                onChange={e => modifier('fragments_max', Number(e.target.value))} />
-              <button type="button" className="compteur-btn" onClick={() => modifier('fragments_current', (fiche.fragments_current ?? 0) + 1)}>+</button>
-            </div>
-          </div>
+          {champ('Fragments', 'fragments_current', 'number')}
         </div>
         <div className="fc-grille fc-grille--4" style={{ marginTop: 6 }}>
           {champ('Indice de Défense (ID)', 'indice_defense', 'number')}
